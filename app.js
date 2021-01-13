@@ -1,35 +1,49 @@
-require('dotenv').config();
+require("dotenv").config();
 
-const express = require('express');
-const hbs = require('hbs');
+const express = require("express");
+const hbs = require("hbs");
+const path = require("path");
 
 // require spotify-web-api-node package here:
-const SpotifyWebApi = require('spotify-web-api-node');
+const SpotifyWebApi = require("spotify-web-api-node");
 
 //Client ID edcd5d7857c74812a5eaeed5cacfddc4
 //Client Secret 34e18b848ff84c5885722d98779f1068
 
 const app = express();
 
-app.set('view engine', 'hbs');
-app.set('views', __dirname + '/views');
-app.use(express.static(__dirname + '/public'));
+app.set("views", path.join(__dirname, "views"));
+app.set("view engine", "hbs");
+
+app.use(express.static(__dirname + "/public"));
 
 // setting the spotify-api goes here:
 const spotifyApi = new SpotifyWebApi({
-    clientId: process.env.CLIENT_ID,
-    clientSecret: process.env.CLIENT_SECRET
-  });
-  
-  // Retrieve an access token
-  spotifyApi
-    .clientCredentialsGrant()
-    .then(data => spotifyApi.setAccessToken(data.body['access_token']))
-    .catch(error => console.log('Something went wrong when retrieving an access token', error));
-
-// Our routes go here:
-app.get('/',(req,res)=> {
-    res.render('home');
+  clientId: process.env.CLIENT_ID,
+  clientSecret: process.env.CLIENT_SECRET
 });
 
-app.listen(3000, () => console.log('My Spotify project running on port 3000 🎧 🥁 🎸 🔊'));
+// Retrieve an access token
+spotifyApi
+  .clientCredentialsGrant()
+  .then((data) => spotifyApi.setAccessToken(data.body["access_token"]))
+  .catch((error) =>
+    console.log("Something went wrong when retrieving an access token", error)
+  );
+
+// Our routes go here:
+app.get("/", (request, response) => {
+  response.render("home");
+});
+
+app.get("/search", (request, response) => {
+  const searchQuery = request.query.q;
+  console.log(searchQuery);
+  response.render("results", {
+    searchQuery: searchQuery
+  });
+});
+
+app.listen(3000, () =>
+  console.log("My Spotify project running on port 3000 🎧 🥁 🎸 🔊")
+);
